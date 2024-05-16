@@ -54,6 +54,14 @@ function setupLandmarkTask() {
         redrawSequence();
     });
 
+	$('#canvas').on('contextmenu', function(e) {
+		console.log("deleting landmark..");
+        e.preventDefault();
+        var pos = mousePos(e, this);
+        removeLandmarkOnRightClick(pos.x, pos.y, g_currentFrameNr);
+        return false; // prevent the context menu
+    });
+
     $("#addFrameButton").click(function() {
         g_landmarks[g_currentFrameNr] = [];
     });
@@ -86,6 +94,22 @@ function setupLandmarkTask() {
     // Set first label active
     changeLabel(g_labelButtons[0].id);
     redraw();
+}
+
+function removeLandmarkOnRightClick(x, y, frameNr) {
+	// Checks that there a list of landmarks for the current frame
+    if (frameNr in g_landmarks) {
+		// For all landmarks, if one has coordinates within 8 pixels, remove it and redraw the image
+        for (let i = 0; i < g_landmarks[frameNr].length; ++i) {
+            let landmark = g_landmarks[frameNr][i];
+            if (Math.abs(x - landmark.x) < 8 && Math.abs(y - landmark.y) < 8) {
+                // Remove the landmark
+                g_landmarks[frameNr].splice(i, 1);
+                redrawSequence();
+                break;
+            }
+        }
+    }
 }
 
 function createLandmark(x, y, label) {
